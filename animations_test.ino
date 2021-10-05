@@ -65,16 +65,29 @@ void setup() {
 }
 
 void loop() {
-  off(0); // Any value > 0 will scroll strip off
+  strip.setBrightness(50);
   solidFill(255,240,50,0); // solidFill(red, green, blue, delay)
-  //rainbow(10);
+  delay(1000);
+  off(0); // Any value > 0 will scroll strip off
+  delay(1000);
+  rainbow(10);
+  //delay(1000);
   //twinkleFill();
-  //randomFill(0); // any value > 0 will scroll strip to new color
+  //delay(1000);
+  randomFill(0); // any value > 0 will scroll strip to new color
+  delay(1000);
+  randomFill(0); // any value > 0 will scroll strip to new color
+  delay(1000);
   solidFill(255,0,0,0); // solidFill(red, green, blue, delay)
+  delay(1000);
   solidFill(0,255,0,0); // solidFill(red, green, blue, delay)
+  delay(1000);
   solidFill(0,0,255,0); // solidFill(red, green, blue, delay)
+  delay(1000);
   //singleScan(0,5,false); // singleScan(delay, trailing pixels, cyclon movement)
-  off(50); // Any value > 0 will scroll strip off
+  //delay(1000);
+  off(100); // Any value > 0 will scroll strip off
+  delay(200);
   }
 
 void rainbow(uint8_t wait) {
@@ -115,13 +128,13 @@ void solidFill(uint8_t r, uint8_t g,uint8_t b, uint8_t wait){
 }
 
 void off(uint8_t wait){ // clear all LEDs
-//  for(uint16_t i=0;i<strip.numPixels();i++){
-//    strip.setPixelColor(i,(0,0,0));
-//    delay(wait); 
-//    }
-  strip.clear();// turn entire strip off at once
-  strip.show();
-  btnCheck();
+  for(uint16_t i=0;i<strip.numPixels();i++){
+    strip.setPixelColor(i,(0,0,0));
+    delay(wait); 
+    //strip.clear();// turn entire strip off at once
+    strip.show();
+    //btnCheck();
+}
 }
 
 void randomFill(uint8_t wait){
