@@ -42,50 +42,6 @@ int mode = 0;
 const int offBtn = 4;           // pin number
 const int modeBtn = 5;          // pin number
 const int dimBtn = 6;           // pin number
-short brightnessVal = 77;       // initial strip brightnessVal/*
- * 1. 
- * 2. Use conductive touch pads for 3 buttons
- * 3. 
- * 4. wifi update
- * 5. twinkle fill
- * 6. single scan 
- * 
- * uint8_t = 0 to 255 /memory = 1 bytes
- * uint16_t = 0 to 65535 /memory = 2 bytes
- * uint32_t = 0 to 4294967295 /memory = 4 bytes
- * uint64_t = 0 to 18446744073709551615 /memory = 8 bytes 
- * long = -2,147,483,648 to 2,147,483,647 /memory = 4 bytes
- * unsigned long = 0 to 4,294,967,295 /memory = 4 bytes
- * 
- * int = size depends on chip (16-bit = 2 bytes)/(32-bit = 4 bytes)/(64-bit = 8 bytes)
- * 
- * 
- * Basic non-blocking delay *
- *    if (millis() - previousTime >= delayTime) {
- *      previousTime = millis();
- *    }
- */
-
-#include <Adafruit_NeoPixel.h>
-
-#define pixelPin 7
-#define pixelCount 8
-
-// **** Below is Python RGB color list converted to Arduino Arrays ****
-// RGB = [(255,0,0),(255,127,0),(255,255,0),(127,255,0),(0,255,0),(0,255,127),(0,255,255),(0,127,255),(0,0,255),(127,0,255),(255,0,255),(255,0,127)]
-uint8_t rgb_red[12] = {255,255,255,127,0,0,0,0,0,127,255,255};
-uint8_t rgb_green[12] = {0,127,255,255,255,255,255,127,0,0,0,0};
-uint8_t rgb_blue[12] = {0,0,0,0,0,127,255,255,255,255,255,127};
-// ********************************************************************
-
-long randomRGB;
-int previousRainbowWait = 0;
-int rainbowWait = 0;
-int lastDebounceTime = millis();
-int mode = 0;
-const int offBtn = 4;           // pin number
-const int modeBtn = 5;          // pin number
-const int dimBtn = 6;           // pin number
 uint8_t brightnessVal = 77;       // initial strip brightnessVal
 int dimLevel = 2;                // initial dim val used in buttonCheck()
 int dimLast = 2;
