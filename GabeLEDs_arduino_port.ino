@@ -68,49 +68,51 @@ void loop() {
   autoOff();
   
   switch (mode){
-  case '0': //
-    off(5);
+  case 0: //
+    //off(5);
+    Serial.print("Mode 0: ");
+    Serial.println(mode);
     break;
-  case '1': //
+  case 1: //
     Serial.print("Mode 1: ");
     Serial.println(mode);
-    solidFill(255,240,10,5); // Warm White for reading
+    //solidFill(255,240,10,5); // Warm White for reading
     break;
-  case '2': //
+  case 2: //
     Serial.print("Mode 2: ");
     Serial.println(mode);
-    randomFill(10);// any value > 0 will scroll strip to new color
+    //randomFill(10);// any value > 0 will scroll strip to new color
     break;
-  case '3': //
+  case 3: //
     Serial.print("Mode 3: ");
     Serial.println(mode);
-    rainbow(10);
+    //rainbow(10);
     break;
-  case '4': //
+  case 4: //
     Serial.print("Mode 4: ");
     Serial.println(mode);
-    rainbowScroll(2);
+    //rainbowScroll(2);
     break;
-  case '5': //
+  case 5: //
     Serial.print("Mode 5: ");
     Serial.println(mode);
-    getRandomRGB();
-    theaterChase(strip.Color(r, g, b), 5);
+    //getRandomRGB();
+    //theaterChase(strip.Color(r, g, b), 5);
     break;
-  case '6': //
+  case 6: //
     Serial.print("Mode 6: ");
     Serial.println(mode);
-    theaterChaseRainbow(100);
+    //theaterChaseRainbow(100);
     break;
-  case '7': //
+  case 7: //
     Serial.print("Mode 7: ");
     Serial.println(mode);
-    twinkleFill();
+    //twinkleFill();
     break;
-  case '8': //
+  case 8: //
     Serial.print("Mode 8: ");
     Serial.println(mode);
-    singleScan(10,5,true); // (speed, number of pixels, down and back)
+    //singleScan(10,5,true); // (speed, number of pixels, down and back)
     break;
   default: 
     Serial.print("Default: ");
