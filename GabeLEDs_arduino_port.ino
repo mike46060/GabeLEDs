@@ -67,9 +67,9 @@ void setup() {
 
 void loop() {
   //strip.setBrightness(50);
-  //solidFill(255,240,50,0); // solidFill(red, green, blue, delay)
+  //solidFill(255,240,10,0); // solidFill(red, green, blue, delay)
   //delay(1000);
-  //randomFill(0); // any value > 0 will scroll strip to new color
+  randomFill(0); // any value > 0 will scroll strip to new color
   //delay(1000);
   //randomFill(0); // any value > 0 will scroll strip to new color
   //delay(1000);
@@ -80,9 +80,9 @@ void loop() {
   uint8_t b = rgb_blue[random(0,sizeof(rgb_blue))];
   //theaterChase(strip.Color(r, g, b), 50);
   //theaterChaseRainbow(100);
-  //twinkleFill();
-  singleScan(10,5,true); // singleScan(delay, trailing pixels, cyclon movement)
-  //off(100); // Any value > 0 will scroll strip off
+  twinkleFill();
+  //singleScan(10,5,true); // singleScan(delay, trailing pixels, cyclon movement)
+  off(10); // Any value > 0 will scroll strip off
   //delay(200);
   }
 
@@ -262,12 +262,19 @@ void theaterChaseRainbow(int wait) {
 }
 
 void twinkleFill(){
-//  for (uint8_t i; (pixelCount * 3); i++);
+  strip.clear();
+  for(int a=0; a<pixelCount*2;a++){
+    strip.setPixelColor(random(pixelCount), strip.Color(rgb_red[random(0,sizeof(rgb_red))], rgb_green[random(0,sizeof(rgb_green))],rgb_blue[random(0,sizeof(rgb_blue))])); //multi-color twinkle
+    strip.show();
+    delay(5);
+//  for (uint8_t i=0; strip.numPixels(); i++){
 //    btn_check()
 //    if mode == 3:
+      
 //      pixels[random.randrange(num_pixels)] = (random.choice(RGB))
 //      pixels.show()
 //      time.sleep(DELAY)
+}
 }
 
 void singleScan(uint8_t wait, uint8_t trailLength, bool cylon){
@@ -305,4 +312,5 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool cylon){
 
     }
   }
+  return;
 }
