@@ -3,8 +3,8 @@
  * 2. Use conductive touch pads for 3 buttons
  * 3. 
  * 4. wifi update
- * 5. twinkle fill
- * 6. single scan 
+ * 5. 
+ * 6. fix single scan 'crash' after 1st pass
  * 
  * uint8_t = 0 to 255 /memory = 1 bytes
  * uint16_t = 0 to 65535 /memory = 2 bytes
@@ -25,25 +25,23 @@
 #include <Adafruit_NeoPixel.h>
 
 #define pixelPin 7
-#define pixelCount 300
+#define pixelCount 8
 
 // **** Below is Python RGB color list converted to Arduino Arrays ****
 // RGB = [(255,0,0),(255,127,0),(255,255,0),(127,255,0),(0,255,0),(0,255,127),(0,255,255),(0,127,255),(0,0,255),(127,0,255),(255,0,255),(255,0,127)]
-uint8_t rgb_red[12] = {255,255,255,127,0,0,0,0,0,127,255,255};
-uint8_t rgb_green[12] = {0,127,255,255,255,255,255,127,0,0,0,0};
-uint8_t rgb_blue[12] = {0,0,0,0,0,127,255,255,255,255,255,127};
+int rgb_red[12] = {255,255,255,127,0,0,0,0,0,127,255,255}; // update getRandomRGB() if this array changes size
+int rgb_green[12] = {0,127,255,255,255,255,255,127,0,0,0,0}; // update getRandomRGB() if this array changes size
+int rgb_blue[12] = {0,0,0,0,0,127,255,255,255,255,255,127}; // update getRandomRGB() if this array changes size
+int r, g, b; // global RGB variables
 // ********************************************************************
 
-long randomRGB;
-int previousRainbowWait = 0;
-int rainbowWait = 0;
 int lastDebounceTime = millis();
 int mode = 0;
 const int offBtn = 4;           // pin number
 const int modeBtn = 5;          // pin number
 const int dimBtn = 6;           // pin number
-uint8_t brightnessVal = 77;       // initial strip brightnessVal
-int dimLevel = 2;                // initial dim val used in buttonCheck()
+int brightnessVal = 77;     // initial strip brightnessVal
+int dimLevel = 2;               // initial dim val used in buttonCheck()
 int dimLast = 2;
 int autoOffTime = 3600000;      // 1hr auto off delay in mS
 unsigned long lastAutoOff = millis();  // 1hr auto off delay
@@ -66,25 +64,61 @@ void setup() {
 }
 
 void loop() {
-  //strip.setBrightness(50);
-  //solidFill(255,240,10,0); // solidFill(red, green, blue, delay)
-  //delay(1000);
-  randomFill(0); // any value > 0 will scroll strip to new color
-  //delay(1000);
-  //randomFill(0); // any value > 0 will scroll strip to new color
-  //delay(1000);
-  //rainbow(10);
-  //rainbowScroll(2); 
-  uint8_t r = rgb_red[random(0,sizeof(rgb_red))];
-  uint8_t g = rgb_green[random(0,sizeof(rgb_green))];
-  uint8_t b = rgb_blue[random(0,sizeof(rgb_blue))];
-  //theaterChase(strip.Color(r, g, b), 50);
-  //theaterChaseRainbow(100);
-  twinkleFill();
-  //singleScan(10,5,true); // singleScan(delay, trailing pixels, cyclon movement)
-  off(10); // Any value > 0 will scroll strip off
-  //delay(200);
+  btnCheck();
+  autoOff();
+  
+  switch (mode){
+  case '0': //
+    off(5);
+    break;
+  case '1': //
+    Serial.print("Mode 1: ");
+    Serial.println(mode);
+    solidFill(255,240,10,5); // Warm White for reading
+    break;
+  case '2': //
+    Serial.print("Mode 2: ");
+    Serial.println(mode);
+    randomFill(10);// any value > 0 will scroll strip to new color
+    break;
+  case '3': //
+    Serial.print("Mode 3: ");
+    Serial.println(mode);
+    rainbow(10);
+    break;
+  case '4': //
+    Serial.print("Mode 4: ");
+    Serial.println(mode);
+    rainbowScroll(2);
+    break;
+  case '5': //
+    Serial.print("Mode 5: ");
+    Serial.println(mode);
+    getRandomRGB();
+    theaterChase(strip.Color(r, g, b), 5);
+    break;
+  case '6': //
+    Serial.print("Mode 6: ");
+    Serial.println(mode);
+    theaterChaseRainbow(100);
+    break;
+  case '7': //
+    Serial.print("Mode 7: ");
+    Serial.println(mode);
+    twinkleFill();
+    break;
+  case '8': //
+    Serial.print("Mode 8: ");
+    Serial.println(mode);
+    singleScan(10,5,true); // (speed, number of pixels, down and back)
+    break;
+  default: 
+    Serial.print("Default: ");
+    Serial.println(mode);
+    mode = 0;
+    break;
   }
+}
 
 void btnCheck() {  //**************************************************
   if (millis() - lastDebounceTime > 200) {       // 200ms debounce time
@@ -103,7 +137,7 @@ void btnCheck() {  //**************************************************
   }
   if (digitalRead(dimBtn) == LOW) {                // debounce timeDnBtn
       lastDebounceTime = millis();
-      dimLevel++;  // dim levels 0=26, 1=77, 2=154, 3=255
+      dimLevel++;
       lastAutoOff = millis();
       if (dimLevel != dimLast){
         if (dimLevel > 3){
@@ -114,19 +148,19 @@ void btnCheck() {  //**************************************************
         Serial.println(dimLevel);
         switch (dimLevel){
           case '0': //
-            brightnessVal = 26;
+            brightnessVal = 26; // 26/255 = 10%
             break;
           case '1': //
-            brightnessVal = 77;
+            brightnessVal = 77; // 26/255 = 30%
             break;
           case '2': //
-            brightnessVal = 154;
+            brightnessVal = 154; // 154/255 = 60%
             break;
           case '3': //
-            brightnessVal = 255;
+            brightnessVal = 255; // 255/255 = 100%
             break;
           default: 
-            brightnessVal = 26;
+            brightnessVal = 26; // 26/255 = 10%
             dimLevel = 0;
             break;
         }
@@ -140,12 +174,16 @@ void off(uint8_t wait){ // clear all LEDs
     for(uint16_t i=0;i<strip.numPixels();i++){
       strip.setPixelColor(i,(0,0,0));
       delay(wait);
-      strip.show(); 
+      strip.show();
+      Serial.print("off(), wait != 0");
+      Serial.println(mode);
     }
   }
   else {
       strip.clear();// turn entire strip off at once
       strip.show();
+      Serial.print("off(), wait == 0");
+      Serial.println(mode);
   }
 }
 
@@ -153,11 +191,20 @@ void autoOff(){
   if (millis() - lastAutoOff >= autoOffTime) {
     lastAutoOff = millis();
     mode = 0;
+    Serial.print("autoOff()");
+    Serial.println(mode);
   }
 }
 
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
+void getRandomRGB(){ // pick a random color from the RBG arrays above
+  int i = random(0,12); // update this if RGB arrays change size
+  r = rgb_red[i] * brightnessVal / 255;
+  g = rgb_green[i] * brightnessVal / 255;
+  b = rgb_blue[i] * brightnessVal / 255;
+  Serial.print("getRandomRGB()");
+  Serial.println(mode);
+}
+
 uint32_t Wheel(uint8_t WheelPos) {
   if(WheelPos < 85) {
    return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
@@ -168,6 +215,7 @@ uint32_t Wheel(uint8_t WheelPos) {
    WheelPos -= 170;
    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
   }
+  Serial.print("Wheel()");
 }
 
 void rainbow(uint8_t wait) {
@@ -175,67 +223,60 @@ void rainbow(uint8_t wait) {
   for(j=0; j<256; j++) {
     for(i=0; i<strip.numPixels(); i++) {
       strip.setPixelColor(i, Wheel((i+j) & 255));
+      btnCheck();
+      Serial.print("rainbow()");
     }
-    strip.setBrightness(brightnessVal);
     strip.show();
-    btnCheck();
-    delay(wait); // Figure out how to remove this blocking wait.
+    delay(wait);
   }
 }
 
 void rainbowScroll(int wait) {
-  // Hue of first pixel runs 5 complete loops through the color wheel.
-  // Color wheel has a range of 65536 but it's OK if we roll over, so
-  // just count from 0 to 5*65536. Adding 256 to firstPixelHue each time
-  // means we'll make 5*65536/256 = 1280 passes through this outer loop:
-  for(long firstPixelHue = 0; firstPixelHue < 5*65536; firstPixelHue += 256) {
-    for(int i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
-      // Offset pixel hue by an amount to make one full revolution of the
-      // color wheel (range of 65536) along the length of the strip
-      // (strip.numPixels() steps):
+  // Hue of first pixel runs one complete loop through the color wheel (65536).
+  for(long firstPixelHue = 0; firstPixelHue < 65536; firstPixelHue += 256) {
+    for(int i=0; i<strip.numPixels(); i++) {
       int pixelHue = firstPixelHue + (i * 65536L / strip.numPixels());
-      // strip.ColorHSV() can take 1 or 3 arguments: a hue (0 to 65535) or
-      // optionally add saturation and value (brightness) (each 0 to 255).
-      // Here we're using just the single-argument hue variant. The result
-      // is passed through strip.gamma32() to provide 'truer' colors
-      // before assigning to each pixel:
       strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
+      btnCheck();
+      Serial.print("rainbowScroll()");
     }
-    strip.show(); // Update strip with new contents
-    delay(wait);  // Pause for a moment
+    strip.show();
+    delay(wait);
   }
 }
 
 void solidFill(uint8_t r, uint8_t g,uint8_t b, uint8_t wait){
   for(uint16_t i=0; i<pixelCount; i++) {
     strip.setPixelColor(i, strip.Color(r, g, b));
-    strip.setBrightness(brightnessVal);
-    strip.show();
     btnCheck();
-    delay(wait);  // controls speed of incremental fill
+    if(wait>0){
+      strip.show();
+      delay(wait);  // controls speed of incremental fill
+      Serial.print("solidFil(), wait > 0");
+    }
+  }
+  if(wait==0){ // if no wait, fill strip all at once
+    strip.show();  
+    Serial.print("solidFill(), wait == 0");
   }
 }
 
-
 void randomFill(uint8_t wait){
-  uint8_t r = rgb_red[random(0,sizeof(rgb_red))];
-  uint8_t g = rgb_green[random(0,sizeof(rgb_green))];
-  uint8_t b = rgb_blue[random(0,sizeof(rgb_blue))];
+  getRandomRGB();
   solidFill(r,g,b,wait);
-  btnCheck();
+  Serial.print("randomFill()");
 }
 
 void theaterChase(uint32_t color, int wait) { // 'wait' var determines chase speed (i think)
-  for(uint8_t a=0; a<10; a++) {  // Repeat 10 times...
-    for(uint8_t b=0; b<3; b++) { //  'b' counts from 0 to 2...
-      strip.clear();         //   Set all pixels in RAM to 0 (off)
-      // 'c' counts up from 'b' to end of strip in steps of 3...
+  for(uint8_t a=0; a<30; a++) {   // Repeat 30 times...
+    for(uint8_t b=0; b<3; b++) {  //  'b' sets gap between pixels
       for(uint16_t c=b; c<strip.numPixels(); c += 3) {
         strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+        btnCheck();
       }
-      btnCheck();
       strip.show(); // Update strip with new contents
       delay(wait);  // Pause for a moment
+      Serial.print("theaterChase()");
     }
   }
 }
@@ -243,20 +284,18 @@ void theaterChase(uint32_t color, int wait) { // 'wait' var determines chase spe
 void theaterChaseRainbow(int wait) {
   int firstPixelHue = 0;     // First pixel starts at red (hue 0)
   for(int a=0; a<30; a++) {  // Repeat 30 times...
-    for(int b=0; b<3; b++) { //  'b' counts from 0 to 2...
-      strip.clear();         //   Set all pixels in RAM to 0 (off)
-      // 'c' counts up from 'b' to end of strip in increments of 3...
+    for(int b=0; b<3; b++) { //  'b' sets gap between pixels
+      strip.clear();
       for(int c=b; c<strip.numPixels(); c += 3) {
-        // hue of pixel 'c' is offset by an amount to make one full
-        // revolution of the color wheel (range 65536) along the length
-        // of the strip (strip.numPixels() steps):
-        int      hue   = firstPixelHue + c * 65536L / strip.numPixels();
+        int hue = firstPixelHue + c * 65536L / strip.numPixels();
         uint32_t color = strip.gamma32(strip.ColorHSV(hue)); // hue -> RGB
-        strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+        strip.setPixelColor(c, color);
+        btnCheck();
       }
       strip.show();                // Update strip with new contents
       delay(wait);                 // Pause for a moment
       firstPixelHue += 65536 / 90; // One cycle of color wheel over 90 frames
+      Serial.print("theaterChaseRainbow()");
     }
   }
 }
@@ -264,23 +303,17 @@ void theaterChaseRainbow(int wait) {
 void twinkleFill(){
   strip.clear();
   for(int a=0; a<pixelCount*2;a++){
-    strip.setPixelColor(random(pixelCount), strip.Color(rgb_red[random(0,sizeof(rgb_red))], rgb_green[random(0,sizeof(rgb_green))],rgb_blue[random(0,sizeof(rgb_blue))])); //multi-color twinkle
+    getRandomRGB();
+    strip.setPixelColor(random(pixelCount), strip.Color(r, g, b)); //multi-color twinkle
     strip.show();
     delay(5);
-//  for (uint8_t i=0; strip.numPixels(); i++){
-//    btn_check()
-//    if mode == 3:
-      
-//      pixels[random.randrange(num_pixels)] = (random.choice(RGB))
-//      pixels.show()
-//      time.sleep(DELAY)
-}
+    btnCheck();
+    Serial.print("twinkleFill()");
+  }
 }
 
-void singleScan(uint8_t wait, uint8_t trailLength, bool cylon){
-  uint8_t r = rgb_red[random(0,sizeof(rgb_red))];
-  uint8_t g = rgb_green[random(0,sizeof(rgb_green))];
-  uint8_t b = rgb_blue[random(0,sizeof(rgb_blue))];
+void singleScan(uint8_t wait, uint8_t trailLength, bool scan){ // scan travels down and back
+  getRandomRGB();
   for(uint16_t i=0; i<(strip.numPixels()+trailLength); i++) {
     strip.clear();
     strip.setPixelColor(i,r,g,b);
@@ -290,12 +323,11 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool cylon){
     }
     strip.show();
     delay(wait);
-    //btnCheck();
-//    if(mode !=8){
-//      return;
-//    }
+    btnCheck();
+    Serial.print("singleScan(), up");
   }
-  if (cylon == true){
+  if (scan == true){
+    getRandomRGB();
     for(uint16_t i=strip.numPixels(); i>(0-trailLength); i--) {
       strip.clear();
       strip.setPixelColor(i,r,g,b);
@@ -305,12 +337,8 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool cylon){
       }
       strip.show();
       delay(wait);
-//btnCheck();
-//      if(mode !=8){
-//        return;
-//      }
-
+      btnCheck();
+      Serial.print("singleScan(), down");
     }
   }
-  return;
 }
