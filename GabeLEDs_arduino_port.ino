@@ -81,7 +81,7 @@ void loop() {
     Serial.print("Mode 1: ");
     Serial.println(mode);
     modeLast = mode;
-    solidFill(255,240,10,5); // Warm White for reading
+    solidFill(255,240,10,5); // Warm White for reading (r, g, b, speed)
     break;
   case 2: //
     Serial.print("Mode 2: ");
@@ -93,26 +93,26 @@ void loop() {
     Serial.print("Mode 3: ");
     Serial.println(mode);
     modeLast = mode;
-    rainbow(10);
+    rainbow(50); // (speed)
     break;
   case 4: //
     Serial.print("Mode 4: ");
     Serial.println(mode);
     modeLast = mode;
-    rainbowScroll(2);
+    rainbowScroll(50); // (speed)
     break;
   case 5: //
     Serial.print("Mode 5: ");
     Serial.println(mode);
     modeLast = mode;
     getRandomRGB();
-    theaterChase(strip.Color(r, g, b), 5);
+    theaterChase(strip.Color(r, g, b), 5); // (r, g, b, speed)
     break;
   case 6: //
     Serial.print("Mode 6: ");
     Serial.println(mode);
     modeLast = mode;
-    theaterChaseRainbow(100);
+    theaterChaseRainbow(100); // (speed)
     break;
   case 7: //
     Serial.print("Mode 7: ");
@@ -124,7 +124,7 @@ void loop() {
     Serial.print("Mode 8: ");
     Serial.println(mode);
     modeLast = mode;
-    singleScan(10,5,true); // (speed, number of pixels, down and back)
+    singleScan(50,5,true); // (speed, number of pixels, down and back)
     break;
   default: 
     Serial.print("Default: ");
@@ -142,14 +142,14 @@ void btnCheck() {  //**************************************************
       Serial.print("Mode: ");
       Serial.println(mode);
   }
-  if (digitalRead(modeBtn) == LOW) {                // debounce timeDnBtn
+    if (digitalRead(modeBtn) == LOW) {                // debounce timeDnBtn
       lastDebounceTime = millis();//
       mode++;
       lastAutoOff = millis();
       Serial.print("Mode: ");
       Serial.println(mode);
   }
-  if (digitalRead(dimBtn) == LOW) {                // debounce timeDnBtn
+    if (digitalRead(dimBtn) == LOW) {                // debounce timeDnBtn
       lastDebounceTime = millis();
       dimLevel++;
       lastAutoOff = millis();
@@ -157,26 +157,26 @@ void btnCheck() {  //**************************************************
         if (dimLevel > 3){
           dimLevel = 0;
         }
-        dimLast = dimLevel;
-        Serial.print("DimLevel: ");
-        Serial.println(dimLevel);
-        switch (dimLevel){
-          case '0': //
-            brightnessVal = 26; // 26/255 = 10%
-            break;
-          case '1': //
-            brightnessVal = 77; // 26/255 = 30%
-            break;
-          case '2': //
-            brightnessVal = 154; // 154/255 = 60%
-            break;
-          case '3': //
-            brightnessVal = 255; // 255/255 = 100%
-            break;
-          default: 
-            brightnessVal = 26; // 26/255 = 10%
-            dimLevel = 0;
-            break;
+      dimLast = dimLevel;
+      Serial.print("DimLevel: ");
+      Serial.println(dimLevel);
+      switch (dimLevel){
+        case 0: //
+          brightnessVal = 26; // 26/255 = 10%
+          break;
+        case 1: //
+          brightnessVal = 77; // 26/255 = 30%
+          break;
+        case 2: //
+          brightnessVal = 154; // 154/255 = 60%
+          break;
+        case 3: //
+          brightnessVal = 255; // 255/255 = 100%
+          break;
+        default: 
+          brightnessVal = 26; // 26/255 = 10%
+          dimLevel = 0;
+          break;
         }
       }
     }
@@ -194,10 +194,10 @@ void off(uint8_t wait){ // clear all LEDs
     }
   }
   else {
-      strip.clear();// turn entire strip off at once
-      strip.show();
-      Serial.print("off(), wait == 0");
-      Serial.println(mode);
+    strip.clear();// turn entire strip off at once
+    strip.show();
+    Serial.print("off(), wait == 0");
+    Serial.println(mode);
   }
 }
 
@@ -212,9 +212,9 @@ void autoOff(){
 
 void getRandomRGB(){ // pick a random color from the RBG arrays above
   int i = random(0,12); // update this if RGB arrays change size
-  r = rgb_red[i] * brightnessVal / 255;
-  g = rgb_green[i] * brightnessVal / 255;
-  b = rgb_blue[i] * brightnessVal / 255;
+  r = rgb_red[i];
+  g = rgb_green[i];
+  b = rgb_blue[i];
   Serial.print("getRandomRGB()");
   Serial.println(mode);
 }
@@ -241,11 +241,14 @@ void rainbow(uint8_t wait) {
       if(modeLast!=mode){
         break;
       }
-      Serial.println("rainbow()");
+    }
+    if(modeLast!=mode){
+      break;
     }
     strip.show();
     delay(wait);
   }
+  Serial.println("rainbow()");
 }
 
 void rainbowScroll(int wait) {
@@ -258,14 +261,17 @@ void rainbowScroll(int wait) {
       if(modeLast!=mode){
         break;
       }
-      Serial.println("rainbowScroll()");
     }
     strip.show();
     delay(wait);
   }
+  Serial.println("rainbowScroll()");
 }
 
 void solidFill(uint8_t r, uint8_t g,uint8_t b, uint8_t wait){
+  r = r * brightnessVal / 255;
+  g = g * brightnessVal / 255;
+  b = b * brightnessVal / 255;
   for(uint16_t i=0; i<pixelCount; i++) {
     strip.setPixelColor(i, strip.Color(r, g, b));
     btnCheck();
@@ -305,12 +311,12 @@ void theaterChase(uint32_t color, int wait) { // 'wait' var determines chase spe
       }
       strip.show(); // Update strip with new contents
       delay(wait);  // Pause for a moment
-      Serial.println("theaterChase()");
     }
     if(modeLast!=mode){
       break;
     }
   }
+  Serial.println("theaterChase()");
 }
 
 void theaterChaseRainbow(int wait) {
@@ -333,18 +339,21 @@ void theaterChaseRainbow(int wait) {
         break;
       }
       firstPixelHue += 65536 / 90; // One cycle of color wheel over 90 frames
-      Serial.println("theaterChaseRainbow()");
     }
     if(modeLast!=mode){
       break;
     }
   }
+  Serial.println("theaterChaseRainbow()");
 }
 
 void twinkleFill(){
   strip.clear();
   for(int a=0; a<pixelCount*2;a++){
     getRandomRGB();
+    r = r * brightnessVal / 255;
+    g = g * brightnessVal / 255;
+    b = b * brightnessVal / 255;
     strip.setPixelColor(random(pixelCount), strip.Color(r, g, b)); //multi-color twinkle
     strip.show();
     delay(5);
@@ -352,12 +361,15 @@ void twinkleFill(){
     if(modeLast!=mode){
       break;
     }
-    Serial.println("twinkleFill()");
   }
+  Serial.println("twinkleFill()");
 }
 
 void singleScan(uint8_t wait, uint8_t trailLength, bool scan){ // scan travels down and back
   getRandomRGB();
+  r = r * brightnessVal / 255;
+  g = g * brightnessVal / 255;
+  b = b * brightnessVal / 255;
   for(uint16_t i=0; i<(strip.numPixels()+trailLength); i++) {
     strip.clear();
     strip.setPixelColor(i,r,g,b);
@@ -375,6 +387,9 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool scan){ // scan travels d
   }
   if (scan == true){
     getRandomRGB();
+    r = r * brightnessVal / 255;
+    g = g * brightnessVal / 255;
+    b = b * brightnessVal / 255;
     for(uint16_t i=strip.numPixels(); i>(0-trailLength); i--) {
       strip.clear();
       strip.setPixelColor(i,r,g,b);
