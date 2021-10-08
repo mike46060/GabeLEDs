@@ -45,6 +45,7 @@ int dimLevel = 2;               // initial dim val used in buttonCheck()
 int dimLast = 2;
 int autoOffTime = 3600000;      // 1hr auto off delay in mS
 unsigned long lastAutoOff = millis();  // 1hr auto off delay
+uint8_t modeLast;
 
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, pixelPin, NEO_GRB + NEO_KHZ800);
@@ -66,53 +67,64 @@ void setup() {
 void loop() {
   btnCheck();
   autoOff();
+    Serial.print("Dim Level: ");
+    Serial.println(dimLevel);
   
   switch (mode){
   case 0: //
-    //off(5);
+    off(5);
     Serial.print("Mode 0: ");
     Serial.println(mode);
+    modeLast = mode;
     break;
   case 1: //
     Serial.print("Mode 1: ");
     Serial.println(mode);
-    //solidFill(255,240,10,5); // Warm White for reading
+    modeLast = mode;
+    solidFill(255,240,10,5); // Warm White for reading
     break;
   case 2: //
     Serial.print("Mode 2: ");
     Serial.println(mode);
-    //randomFill(10);// any value > 0 will scroll strip to new color
+    modeLast = mode;
+    randomFill(10);// any value > 0 will scroll strip to new color
     break;
   case 3: //
     Serial.print("Mode 3: ");
     Serial.println(mode);
-    //rainbow(10);
+    modeLast = mode;
+    rainbow(10);
     break;
   case 4: //
     Serial.print("Mode 4: ");
     Serial.println(mode);
-    //rainbowScroll(2);
+    modeLast = mode;
+    rainbowScroll(2);
     break;
   case 5: //
     Serial.print("Mode 5: ");
     Serial.println(mode);
-    //getRandomRGB();
-    //theaterChase(strip.Color(r, g, b), 5);
+    modeLast = mode;
+    getRandomRGB();
+    theaterChase(strip.Color(r, g, b), 5);
     break;
   case 6: //
     Serial.print("Mode 6: ");
     Serial.println(mode);
-    //theaterChaseRainbow(100);
+    modeLast = mode;
+    theaterChaseRainbow(100);
     break;
   case 7: //
     Serial.print("Mode 7: ");
     Serial.println(mode);
-    //twinkleFill();
+    modeLast = mode;
+    twinkleFill();
     break;
   case 8: //
     Serial.print("Mode 8: ");
     Serial.println(mode);
-    //singleScan(10,5,true); // (speed, number of pixels, down and back)
+    modeLast = mode;
+    singleScan(10,5,true); // (speed, number of pixels, down and back)
     break;
   default: 
     Serial.print("Default: ");
@@ -217,7 +229,7 @@ uint32_t Wheel(uint8_t WheelPos) {
    WheelPos -= 170;
    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
   }
-  Serial.print("Wheel()");
+  Serial.println("Wheel()");
 }
 
 void rainbow(uint8_t wait) {
@@ -226,7 +238,10 @@ void rainbow(uint8_t wait) {
     for(i=0; i<strip.numPixels(); i++) {
       strip.setPixelColor(i, Wheel((i+j) & 255));
       btnCheck();
-      Serial.print("rainbow()");
+      if(modeLast!=mode){
+        break;
+      }
+      Serial.println("rainbow()");
     }
     strip.show();
     delay(wait);
@@ -240,7 +255,10 @@ void rainbowScroll(int wait) {
       int pixelHue = firstPixelHue + (i * 65536L / strip.numPixels());
       strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
       btnCheck();
-      Serial.print("rainbowScroll()");
+      if(modeLast!=mode){
+        break;
+      }
+      Serial.println("rainbowScroll()");
     }
     strip.show();
     delay(wait);
@@ -251,22 +269,25 @@ void solidFill(uint8_t r, uint8_t g,uint8_t b, uint8_t wait){
   for(uint16_t i=0; i<pixelCount; i++) {
     strip.setPixelColor(i, strip.Color(r, g, b));
     btnCheck();
+      if(modeLast!=mode){
+        break;
+      }
     if(wait>0){
       strip.show();
       delay(wait);  // controls speed of incremental fill
-      Serial.print("solidFil(), wait > 0");
+      Serial.println("solidFil(), wait > 0");
     }
   }
   if(wait==0){ // if no wait, fill strip all at once
     strip.show();  
-    Serial.print("solidFill(), wait == 0");
+    Serial.println("solidFill(), wait == 0");
   }
 }
 
 void randomFill(uint8_t wait){
   getRandomRGB();
   solidFill(r,g,b,wait);
-  Serial.print("randomFill()");
+  Serial.println("randomFill()");
 }
 
 void theaterChase(uint32_t color, int wait) { // 'wait' var determines chase speed (i think)
@@ -275,10 +296,19 @@ void theaterChase(uint32_t color, int wait) { // 'wait' var determines chase spe
       for(uint16_t c=b; c<strip.numPixels(); c += 3) {
         strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
         btnCheck();
+        if(modeLast!=mode){
+          break;
+        }
+      }
+      if(modeLast!=mode){
+        break;
       }
       strip.show(); // Update strip with new contents
       delay(wait);  // Pause for a moment
-      Serial.print("theaterChase()");
+      Serial.println("theaterChase()");
+    }
+    if(modeLast!=mode){
+      break;
     }
   }
 }
@@ -293,11 +323,20 @@ void theaterChaseRainbow(int wait) {
         uint32_t color = strip.gamma32(strip.ColorHSV(hue)); // hue -> RGB
         strip.setPixelColor(c, color);
         btnCheck();
+        if(modeLast!=mode){
+          break;
+        }
       }
       strip.show();                // Update strip with new contents
       delay(wait);                 // Pause for a moment
+      if(modeLast!=mode){
+        break;
+      }
       firstPixelHue += 65536 / 90; // One cycle of color wheel over 90 frames
-      Serial.print("theaterChaseRainbow()");
+      Serial.println("theaterChaseRainbow()");
+    }
+    if(modeLast!=mode){
+      break;
     }
   }
 }
@@ -310,7 +349,10 @@ void twinkleFill(){
     strip.show();
     delay(5);
     btnCheck();
-    Serial.print("twinkleFill()");
+    if(modeLast!=mode){
+      break;
+    }
+    Serial.println("twinkleFill()");
   }
 }
 
@@ -326,7 +368,10 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool scan){ // scan travels d
     strip.show();
     delay(wait);
     btnCheck();
-    Serial.print("singleScan(), up");
+    if(modeLast!=mode){
+      break;
+    }
+    Serial.println("singleScan(), up");
   }
   if (scan == true){
     getRandomRGB();
@@ -340,7 +385,10 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool scan){ // scan travels d
       strip.show();
       delay(wait);
       btnCheck();
-      Serial.print("singleScan(), down");
+      if(modeLast!=mode){
+        break;
+      }
+      Serial.println("singleScan(), down");
     }
   }
 }
