@@ -25,7 +25,7 @@
 #include <Adafruit_NeoPixel.h>
 
 #define pixelPin 7
-#define pixelCount 8
+#define pixelCount 40
 
 // **** Below is Python RGB color list converted to Arduino Arrays ****
 // RGB = [(255,0,0),(255,127,0),(255,255,0),(127,255,0),(0,255,0),(0,255,127),(0,255,255),(0,127,255),(0,0,255),(127,0,255),(255,0,255),(255,0,127)]
@@ -70,8 +70,6 @@ void loop() {
   Serial.print("Dim Level: ");
   Serial.println(dimLevel);
 
-  mode=8;
-
   switch (mode) {
     case 0: //
       off(5); // (speed)
@@ -89,7 +87,7 @@ void loop() {
       Serial.print("Mode 2: ");
       Serial.println(mode);
       modeLast = mode;
-      randomFill(150);// any value > 0 will scroll strip to new color
+      randomFill(20);// any value > 0 will scroll strip to new color
       break;
     case 3: //
       Serial.print("Mode 3: ");
@@ -101,7 +99,7 @@ void loop() {
       Serial.print("Mode 4: ");
       Serial.println(mode);
       modeLast = mode;
-      rainbowScroll(50); // (speed)
+      rainbowScroll(10); // (speed)
       break;
     case 5: //
       Serial.print("Mode 5: ");
@@ -120,13 +118,13 @@ void loop() {
       Serial.print("Mode 7: ");
       Serial.println(mode);
       modeLast = mode;
-      twinkleFill(0); // (speed)
+      twinkleFill(20); // (speed)
       break;
     case 8: //
       Serial.print("Mode 8: ");
       Serial.println(mode);
       modeLast = mode;
-      singleScan(500, 5, false); // (speed, number of pixels, down and back)
+      singleScan(30, 4, true); // (speed, number of pixels, down and back)
       break;
     default:
       Serial.print("Default: ");
@@ -303,6 +301,7 @@ void randomFill(int wait) {
 void theaterChase(uint32_t color, int wait) { // 'wait' var determines chase speed (i think)
   for (uint8_t a = 0; a < 30; a++) { // Repeat 30 times...
     for (uint8_t b = 0; b < 3; b++) { //  'b' sets gap between pixels
+      strip.clear();
       for (uint16_t c = b; c < strip.numPixels(); c += 3) {
         strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
         btnCheck();
@@ -339,9 +338,9 @@ void theaterChaseRainbow(int wait) {
       }
       strip.show();                // Update strip with new contents
       delay(wait);                 // Pause for a moment
-      if (modeLast != mode) {
-        break;
-      }
+//      if (modeLast != mode) {
+//        break;
+//      }
       firstPixelHue += 65536 / 90; // One cycle of color wheel over 90 frames
     }
     if (modeLast != mode) {
@@ -353,7 +352,7 @@ void theaterChaseRainbow(int wait) {
 
 void twinkleFill(uint8_t wait) {
   strip.clear();
-  for (int a = 0; a < pixelCount * 2; a++) {
+  for (int a = 0; a < pixelCount * 5; a++) {
     getRandomRGB();
     r = r * brightnessVal / 255;
     g = g * brightnessVal / 255;
@@ -378,9 +377,9 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool scan) { // scan travels 
   for (uint16_t i = 0; i < (strip.numPixels() + trailLength); i++) {
     strip.clear();
     strip.setPixelColor(i, r, g, b);
-      for(uint16_t n=0; n<(trailLength); n++){
-        float rate = 1-((n+1)/trailLength);
-        strip.setPixelColor(i-n,r*rate,g*rate,b*rate);
+    for (float n = 0; n < (trailLength); n++) {
+      float rate = (1 - (n / trailLength)) * 100;
+      strip.setPixelColor(i - n, r * rate * .01, g * rate * .01, b * rate * .01);
         Serial.print("i: ");
         Serial.println(i);
         Serial.print("n: ");
@@ -389,7 +388,7 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool scan) { // scan travels 
         Serial.println(i-n);
         Serial.print("rate: ");
         Serial.println(rate);
-      }
+    }
     strip.show();
     delay(wait);
     btnCheck();
@@ -403,13 +402,21 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool scan) { // scan travels 
     r = r * brightnessVal / 255;
     g = g * brightnessVal / 255;
     b = b * brightnessVal / 255;
-    for (uint16_t i = strip.numPixels(); i > (0 - trailLength); i--) {
+    for (int i = strip.numPixels()-1; i > (0 - trailLength) and i < (65535-trailLength); i--) {
       strip.clear();
       strip.setPixelColor(i, r, g, b);
-      //      for(uint16_t n=1; n<trailLength; n++){
-      //        uint8_t rate = 1-((n+1)/trailLength);
-      //        strip.setPixelColor(i+n,r*rate,g*rate,b*rate);
-      //      }
+      for (float n = 1; n < trailLength; n++) {
+        float rate = (1 - ((n) / (trailLength))) * 100;
+        strip.setPixelColor(i + n, r * rate * .01, g * rate * .01, b * rate * .01);
+        Serial.print("i: ");
+        Serial.println(i);
+        Serial.print("n: ");
+        Serial.println(n);
+        Serial.print("i-n: ");
+        Serial.println(i-n);
+        Serial.print("rate: ");
+        Serial.println(rate);
+      }
       strip.show();
       delay(wait);
       btnCheck();
