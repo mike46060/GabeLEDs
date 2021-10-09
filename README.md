@@ -1,6 +1,5 @@
 # GabeLEDs
 Todo:
-1. Verify button functionality
-2. Fix Pixel animations
-3. Change pin numbers before uploading to ESP8266
-4. Add ArduinoOTA Wifi
+1. fix single scan (down), and fade
+2. stick with xiao
+3. when complete, test on full strip and adjust timing as needed
