@@ -1,25 +1,8 @@
 /*
-   1.
-   2. Use conductive touch pads for 3 buttons
-   3.
-   4. wifi update
-   5.
-   6. fix single scan 'crash' after 1st pass
-
-   uint8_t = 0 to 255 /memory = 1 bytes
-   uint16_t = 0 to 65535 /memory = 2 bytes
-   uint32_t = 0 to 4294967295 /memory = 4 bytes
-   uint64_t = 0 to 18446744073709551615 /memory = 8 bytes
-   long = -2,147,483,648 to 2,147,483,647 /memory = 4 bytes
-   unsigned long = 0 to 4,294,967,295 /memory = 4 bytes
-
-   int = size depends on chip (16-bit = 2 bytes)/(32-bit = 4 bytes)/(64-bit = 8 bytes)
-
-
-   Basic non-blocking delay
-      if (millis() - previousTime >= delayTime) {
-        previousTime = millis();
-      }
+// Ref Basic non-blocking delay
+  if (millis() - previousTime >= delayTime) {
+    previousTime = millis();
+  }
 */
 
 #include <Adafruit_NeoPixel.h>
