@@ -70,6 +70,8 @@ void loop() {
   Serial.print("Dim Level: ");
   Serial.println(dimLevel);
 
+  //mode = 8; // put into mode 8 for testing
+
   switch (mode) {
     case 0: //
       off(5); // (speed)
@@ -124,7 +126,7 @@ void loop() {
       Serial.print("Mode 8: ");
       Serial.println(mode);
       modeLast = mode;
-      singleScan(30, 4, true); // (speed, number of pixels, down and back)
+      singleScan(30, 5, true); // (speed, number of pixels, down and back)
       break;
     default:
       Serial.print("Default: ");
@@ -370,15 +372,14 @@ void twinkleFill(uint8_t wait) {
 
 void singleScan(uint8_t wait, uint8_t trailLength, bool scan) { // scan travels down and back
   getRandomRGB();
-  trailLength = trailLength + 1;
   r = r * brightnessVal / 255;
   g = g * brightnessVal / 255;
   b = b * brightnessVal / 255;
   for (uint16_t i = 0; i < (strip.numPixels() + trailLength); i++) {
     strip.clear();
     strip.setPixelColor(i, r, g, b);
-    for (float n = 0; n < (trailLength); n++) {
-      float rate = (1 - (n / trailLength)) * 100;
+    for (float n = 0; n < trailLength; n++) {
+      float rate = (1 - (n/trailLength)) * 100;
       strip.setPixelColor(i - n, r * rate * .01, g * rate * .01, b * rate * .01);
         Serial.print("i: ");
         Serial.println(i);
@@ -406,7 +407,7 @@ void singleScan(uint8_t wait, uint8_t trailLength, bool scan) { // scan travels 
       strip.clear();
       strip.setPixelColor(i, r, g, b);
       for (float n = 1; n < trailLength; n++) {
-        float rate = (1 - ((n) / (trailLength))) * 100;
+        float rate = (1 - (n/trailLength)) * 100;
         strip.setPixelColor(i + n, r * rate * .01, g * rate * .01, b * rate * .01);
         Serial.print("i: ");
         Serial.println(i);
