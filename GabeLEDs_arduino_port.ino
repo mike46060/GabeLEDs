@@ -8,7 +8,7 @@
 #include <Adafruit_NeoPixel.h>
 
 #define pixelPin 7
-#define pixelCount 40
+#define pixelCount 348
 
 // **** Below is Python RGB color list converted to Arduino Arrays ****
 // RGB = [(255,0,0),(255,127,0),(255,255,0),(127,255,0),(0,255,0),(0,255,127),(0,255,255),(0,127,255),(0,0,255),(127,0,255),(255,0,255),(255,0,127)]
@@ -66,7 +66,7 @@ void loop() {
       Serial.print("Mode 1: ");
       Serial.println(mode);
       modeLast = mode;
-      solidFill(255, 240, 10, 5); // Warm White for reading (r, g, b, speed)
+      solidFill(255, 240, 10, 2); // Warm White for reading (r, g, b, speed)
       break;
     case 2: //
       Serial.print("Mode 2: ");
@@ -109,7 +109,7 @@ void loop() {
       Serial.print("Mode 8: ");
       Serial.println(mode);
       modeLast = mode;
-      singleScan(30, 5, true); // (speed, number of pixels, down and back)
+      singleScan(10, 15, true); // (speed, number of pixels, down and back)
       break;
     default:
       Serial.print("Default: ");
@@ -337,7 +337,7 @@ void theaterChaseRainbow(int wait) {
 
 void twinkleFill(uint8_t wait) {
   strip.clear();
-  for (int a = 0; a < pixelCount * 5; a++) {
+  for (int a = 0; a < pixelCount * 10; a++) {
     getRandomRGB();
     r = r * brightnessVal / 255;
     g = g * brightnessVal / 255;
